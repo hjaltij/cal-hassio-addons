@@ -53,7 +53,8 @@ const postReqOptions = { headers: { Authorization: "Bearer " + process.env.SUPER
 let allFutureEvents = {};
 
 async function getEvents() {
-  options.calendarList.forEach( async function (calendar) {
+
+  for (let calendar of options.calendarList) {
     let sensorName = calendar.calName;
     let username = calendar.username;
     let pass = calendar.password;
@@ -192,6 +193,8 @@ async function getEvents() {
             b = new Date(b.startDate);
             return a > b ? 1 : a < b ? -1 : 0;
           });
+
+          return allFutureEvents;
         }
       }
       catch (error) {
@@ -214,6 +217,7 @@ async function getEvents() {
         url: caldavUrl,
         data: caldavReportBody,
       };
+
       const reqOptions2 = { headers: { Authorization: base64string } };
       // Retrieve list of ics file links for the events
       try {
@@ -241,7 +245,7 @@ async function getEvents() {
 
         // Download and parse ics data of events
         let eventsCounter = 0;
-        eventUris.forEach( async function (uri) {
+        for (let uri of eventUris) {
           try {
             let calendarItem = {};
             console.log("Fetching caldav calendar entry " + uri);
@@ -398,7 +402,7 @@ async function getEvents() {
           catch (error) {
             console.log("error with: " + error + error.response);
           }
-        });
+        }
       }
       catch (error) {
         console.log("axios error: " + error.request + error.message);
@@ -490,7 +494,7 @@ async function getEvents() {
         }
       );
     }
-  })
+  }
 }
 
 //////////////////////////////////////////////
@@ -536,7 +540,7 @@ if (testOptions === true) {
       console.log("Previously stored events posted to sensor(s) at: " + new Date());
   }
 }
-  
+
 else async() => {
   await getEvents();
   fs.writeFileSync("/data/allFutureEvents.json", JSON.stringify(allFutureEvents), (err) => {
@@ -549,7 +553,6 @@ else async() => {
   await postEventsAllCalendars();
   console.log("Initial events posted to sensor(s) at: " + new Date());
 }
-
 
 //////////
 // CRON //
